@@ -14,7 +14,9 @@
     "extract": "node src/cli.js"
   },
   "dependencies": {
-    "pdfjs-dist": "^4.4.168"
+    "pdfjs-dist": "^4.4.168",
+    "pngjs": "^7.0.0",
+    "tesseract.js": "^7.0.0"
   },
   "engines": {
     "node": ">=18"

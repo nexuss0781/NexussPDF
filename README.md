@@ -2,7 +2,7 @@
 
 > Adapted from [Vault Operator](https://github.com/nexuss0781/vault-operator).
 
-[![Validation](https://img.shields.io/badge/validation-3%20tests%20passing-brightgreen)](https://github.com/nexuss0781/NexussPDF/tree/main/test) [![GitHub stars](https://img.shields.io/github/stars/nexuss0781/NexussPDF?style=flat&logo=github)](https://github.com/nexuss0781/NexussPDF/stargazers) [![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A518-339933?logo=node.js&logoColor=white)](https://nodejs.org/) [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE) [![PDF.js](https://img.shields.io/badge/PDF.js-4.4.168-orange)](https://github.com/mozilla/pdf.js) [![OCR](https://img.shields.io/badge/OCR-Tesseract-4B8BBE)](https://github.com/tesseract-ocr/tesseract)
+[![Validation](https://img.shields.io/badge/validation-5%20tests%20passing-brightgreen)](https://github.com/nexuss0781/NexussPDF/tree/main/test) [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/nexuss0781/NexussPDF) [![GitHub stars](https://img.shields.io/github/stars/nexuss0781/NexussPDF?style=flat&logo=github)](https://github.com/nexuss0781/NexussPDF/stargazers) [![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A518-339933?logo=node.js&logoColor=white)](https://nodejs.org/) [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE) [![PDF.js](https://img.shields.io/badge/PDF.js-4.4.168-orange)](https://github.com/mozilla/pdf.js) [![OCR](https://img.shields.io/badge/OCR-Tesseract-4B8BBE)](https://github.com/tesseract-ocr/tesseract)
 
 **Fast, deterministic PDF text extraction for Node.js — with OCR fallback for scanned documents.**
 
@@ -22,6 +22,7 @@ NexussPDF turns both text-based and image-only PDFs into clean, page-structured 
 - [Features](#features)
 - [Quick start](#quick-start)
 - [JavaScript API](#javascript-api)
+- [Vercel deployment](#vercel-deployment)
 - [Output format](#output-format)
 - [Architecture](#architecture)
 - [Performance snapshot](#performance-snapshot)
@@ -132,6 +133,42 @@ import { parsePdf, ocrPdf } from './src/index.js';
 const selectable = await parsePdf(arrayBuffer);
 const scanned = await ocrPdf('scanned-document.pdf', { dpi: 300 });
 ```
+
+## ▲ Vercel deployment
+
+NexussPDF includes a ready-to-deploy Vercel Node.js Function at `api/extract.js`. The endpoint accepts a raw PDF upload and returns JSON containing the extracted text, page count, extraction method, and metadata.
+
+### Deploy
+
+Use the button above or import the repository into Vercel. No system package installation is required during deployment. The serverless OCR path uses **Tesseract.js WebAssembly** and downloads its language data on first OCR invocation, then reuses the worker in warm invocations. PDF.js obtains embedded images directly for scanned pages, so the Vercel path does not require Poppler, ImageMagick, or native canvas packages.
+
+```bash
+curl -X POST \\
+  -H 'Content-Type: application/pdf' \\
+  --data-binary @document.pdf \\
+  'https://YOUR-PROJECT.vercel.app/api/extract'
+```
+
+For scanned PDFs, configure OCR resolution through `scale` and language through `language`:
+
+```bash
+curl -X POST \\
+  -H 'Content-Type: application/pdf' \\
+  --data-binary @scanned.pdf \\
+  'https://YOUR-PROJECT.vercel.app/api/extract?scale=1.5&language=eng'
+```
+
+The Vercel function is configured in `vercel.json` with the Node.js 22 runtime, 3,008 MB memory, and a 300-second maximum duration. Vercel’s request and response body limit is 4.5 MB for standard Functions, so larger PDFs should be uploaded through object storage and processed asynchronously rather than sent directly to this endpoint.
+
+### Endpoint contract
+
+| Request | Behavior |
+|---|---|
+| `POST /api/extract` | Accepts `application/pdf` or `application/octet-stream`. |
+| `?ocr=false` | Disables the OCR fallback and returns the PDF.js result. |
+| `?scale=1.5` | Controls serverless PDF image resolution before OCR. |
+| `?language=eng` | Selects the Tesseract language data to download. |
+| `GET /api/extract` | Returns HTTP 405 with an actionable error. |
 
 ## 📝 Output format
 
