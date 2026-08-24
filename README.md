@@ -2,6 +2,8 @@
 
 > Adapted from [Vault Operator](https://github.com/nexuss0781/vault-operator).
 
+[![Validation](https://img.shields.io/badge/validation-3%20tests%20passing-brightgreen)](https://github.com/nexuss0781/NexussPDF/tree/main/test) [![GitHub stars](https://img.shields.io/github/stars/nexuss0781/NexussPDF?style=flat&logo=github)](https://github.com/nexuss0781/NexussPDF/stargazers) [![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A518-339933?logo=node.js&logoColor=white)](https://nodejs.org/) [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE) [![PDF.js](https://img.shields.io/badge/PDF.js-4.4.168-orange)](https://github.com/mozilla/pdf.js) [![OCR](https://img.shields.io/badge/OCR-Tesseract-4B8BBE)](https://github.com/tesseract-ocr/tesseract)
+
 **Fast, deterministic PDF text extraction for Node.js — with OCR fallback for scanned documents.**
 
 NexussPDF turns both text-based and image-only PDFs into clean, page-structured Markdown. It automatically uses native PDF text extraction when selectable text exists and switches to OCR when the document is scanned.
@@ -14,7 +16,20 @@ NexussPDF turns both text-based and image-only PDFs into clean, page-structured 
 
 </div>
 
-## Why NexussPDF?
+## Contents
+
+- [Why NexussPDF?](#why-nexusspdf)
+- [Features](#features)
+- [Quick start](#quick-start)
+- [JavaScript API](#javascript-api)
+- [Output format](#output-format)
+- [Architecture](#architecture)
+- [Performance snapshot](#performance-snapshot)
+- [Test and benchmark](#test-and-benchmark)
+- [Operational notes](#operational-notes)
+- [License](#license)
+
+## 🚀 Why NexussPDF?
 
 PDFs are not all alike. Some contain a real text layer; others are collections of page images. NexussPDF handles both cases through one small API:
 
@@ -31,7 +46,9 @@ PDF file
 
 The original PDF is always treated as read-only. NexussPDF extracts text and metadata; it does not alter, rewrite, merge, split, rotate, redact, annotate, or otherwise manipulate PDF files.
 
-## Features
+## ✨ Features
+
+### Extraction
 
 - **Automatic detection:** PDF.js is attempted first, with OCR used only when no extractable text is found.
 - **Stable page boundaries:** Every extracted page is emitted under a predictable `## Page N` heading.
@@ -41,7 +58,15 @@ The original PDF is always treated as read-only. NexussPDF extracts text and met
 - **Two interfaces:** Use the JavaScript API inside an application or the CLI from a shell.
 - **Traceable organization:** The `ported/` directory preserves the related implementation files used during the standalone extraction.
 
-## Quick start
+### Developer experience
+
+- **Minimal integration:** One asynchronous function returns text, metadata, and the extraction method.
+- **CI-friendly output:** The CLI keeps diagnostics on standard error and extracted Markdown on standard output.
+- **Portable workflow:** Use the same page-structured result for search, indexing, document review, and LLM pipelines.
+
+## 📦 Quick start
+
+> **Tip:** Start with automatic mode. Use `--no-ocr` when you want to verify whether a PDF contains a selectable text layer.
 
 ### Requirements
 
@@ -84,7 +109,7 @@ The extracted Markdown is written to standard output. A compact JSON summary is 
 }
 ```
 
-## JavaScript API
+## 🔌 JavaScript API
 
 ```js
 import { extractPdf } from './src/index.js';
@@ -108,7 +133,7 @@ const selectable = await parsePdf(arrayBuffer);
 const scanned = await ocrPdf('scanned-document.pdf', { dpi: 300 });
 ```
 
-## Output format
+## 📝 Output format
 
 ```markdown
 ## Page 1
@@ -122,7 +147,7 @@ Text extracted from the second page.
 
 This format makes page-range slicing, citation, indexing, and document review straightforward while retaining the source page order.
 
-## Architecture
+## 🧩 Architecture
 
 | File | Responsibility |
 |---|---|
@@ -135,7 +160,9 @@ This format makes page-range slicing, citation, indexing, and document review st
 | `test/` | Deterministic fixtures and end-to-end tests. |
 | `ported/` | Preserved related implementation files for traceability. |
 
-## Performance snapshot
+## ⚡ Performance snapshot
+
+### Baseline results
 
 The included benchmark uses deterministic two-page fixtures and three repeated runs per case on Node.js v22.13.0.
 
@@ -146,7 +173,9 @@ The included benchmark uses deterministic two-page fixtures and three repeated r
 
 These measurements are fixture-level baselines. OCR performance varies with page dimensions, DPI, language models, typography, layout complexity, and available CPU resources.
 
-## Test and benchmark
+## 🧪 Test and benchmark
+
+### Verify locally
 
 Generate fixtures and run the functional suite:
 
@@ -171,12 +200,14 @@ results/quality.json
 
 The test suite verifies selectable extraction, explicit scanned-document detection when OCR is disabled, and the complete scanned-document OCR fallback.
 
-## Operational notes
+## ⚙️ Operational notes
+
+### Choosing OCR settings
 
 PDF.js extraction is deterministic for a given input and runtime. OCR is inherently more variable: increasing `--dpi` can improve recognition for small text but increases rendering time and memory use. Install additional Tesseract language packs when processing non-English documents, then pass the corresponding language code with `--language`.
 
 Encrypted, malformed, or unreadable PDFs may fail before text extraction. The library intentionally does not bypass passwords or attempt destructive repair. Applications should catch extraction errors and decide whether to request a readable source file.
 
-## License
+## ⚖️ License
 
 Apache License 2.0. See [`LICENSE`](./LICENSE) for the complete license text.
