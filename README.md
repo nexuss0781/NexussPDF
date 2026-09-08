@@ -158,7 +158,7 @@ curl -X POST \\
   'https://YOUR-PROJECT.vercel.app/api/extract?scale=1.5&language=eng'
 ```
 
-The Vercel function is configured in `vercel.json` with the Node.js 22 runtime, 3,008 MB memory, and a 300-second maximum duration. Vercel’s request and response body limit is 4.5 MB for standard Functions, so larger PDFs should be uploaded through object storage and processed asynchronously rather than sent directly to this endpoint.
+The Vercel function is configured in `vercel.json` with the Node.js 22 runtime, **2,048 MB memory**, and a 300-second maximum duration. The 2,048 MB setting is compatible with personal Hobby accounts; higher memory values require a Pro team plan. Vercel’s request and response body limit is 4.5 MB for standard Functions, so larger PDFs should be uploaded through object storage and processed asynchronously rather than sent directly to this endpoint.
 
 ### Endpoint contract
 
